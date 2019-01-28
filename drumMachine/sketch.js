@@ -120,10 +120,13 @@ function mouseReleased() {
   state = 0;
 }
 
-function doSetTimeout(i) {
-  setTimeout(function() {
-    synth.freq(midiToFreq((60 * recordArray[i] + 1) / 500 + 30));
-  }, 10000);
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if (new Date().getTime() - start > milliseconds) {
+      break;
+    }
+  }
 }
 
 function draw() {
@@ -143,28 +146,30 @@ function draw() {
     stroke(0);
     line(prevX, prevY, mouseX, mouseY);
 
-    // Save previous mouse position for next line() call
+    // Save all previous datapoints of mouse into a positional array //
     recordArray.push((prevX = mouseX));
     recordArray.push((prevY = mouseY));
     console.log(recordArray);
   }
+  /*
+----------------------------------------------------------
+
+THIS IS THE RECORDING SNIPPET OF CODE -- BELOW --
+
+This needs a bitton... toggle the value of < replay > with a button. If replay === true, p5 draw will run replay once and then set replay to false. Replay will replay back the values recorded in recordArray (see above)
+
+----------------------------------------------------------
+*/
 
   if (replay) {
     console.log('Replaying');
     console.log('RECORD ARRAY: ', recordArray);
-    for (let i = 0; i < recordArray.length; i = i + 2) {
-      // Turn up volume of synthillator tone
+    synth.start();
+    for (let i = 0; i < recordArray.length - 4; i = i + 2) {
+      console.log('X: ', recordArray[i], 'Y: ', recordArray[i + 1]);
       synth.amp(2);
       // Gives us a value between 30 and  80 (good audible frequencies)
-
-      for (var j = 0; j < 5; j++) {
-        (function(j) {
-          setTimeout(function() {
-            synth.freq(midiToFreq((60 * recordArray[j] + 1) / 500 + 30));
-          }, 3000);
-        })(j);
-      }
-
+      synth.freq(midiToFreq((60 * (1200 - recordArray[i + 1])) / 500 + 30));
       // Start black stroke
       stroke(0);
       line(
@@ -174,17 +179,22 @@ function draw() {
         recordArray[i + 3]
       );
 
-      synth.start();
-      synth.fade(0.5, 0.2);
-
-      console.log('x', recordArray[i], 'y', recordArray[i + 1]);
-
-      // Save previous mouse position for next line() call
-      // console.log('REPLAY');
+      // synth.fade(0.5, 0.2);
+      sleep(15);
     }
-    replay = false;
+
+    state = 0;
     console.log('DONE');
+    replay = false;
   }
+
+  /*
+----------------------------------------------------------
+
+THIS IS THE RECORDING SNIPPET OF CODE -- ABOVE --
+
+----------------------------------------------------------
+*/
 
   return recordArray;
 }
