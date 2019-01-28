@@ -47,13 +47,15 @@ function setup() {
     }
 
     let coloredPixels = [];
+    synth.start();
     for(let i = 0; i < 16; i++) {
+
       let pixels = canvas.drawingContext.getImageData(i * 50, 0, 50, 800);
 
       let j = 0;
       while(j < pixels.data.length) {
         if(pixels.data[j] < 255) {
-          coloredPixels.push(j / 800)
+          coloredPixels.push(j / 200)
         }
         j += 4;
       }
@@ -63,13 +65,14 @@ function setup() {
         let average = coloredPixels.reduce(getSum)/coloredPixels.length;
         console.log('average is ')
         console.log(average)
-        synth.start();
-        synth.fade(.5, .2);
+        console.log('about to emit frequency ' + (((60 * average)/500) + 40));
+        sleep(200);
+        synth.freq(midiToFreq(((60 * (800 - average))/500) + 20));
         synth.amp(2);
-        synth.freq(midiToFreq(((60 * average)/500) + 30));
-        setTimeout(10000);
       }
+      coloredPixels = [];
     }
+    synth.stop();
   }
   document.body.appendChild(play)
 
@@ -88,7 +91,7 @@ function setup() {
 }
 
 function mousePressed() {
-  if(state === 0) {
+  if(state === 0 && mouseX <= 800 && mouseY <= 800) {
     // Begin playing the synth
     synth.start();
     synth.fade(0.5, 0.2);
@@ -118,9 +121,11 @@ function draw() {
 
   if(state) {
     // Turn up volume of synthillator tone
-    synth.amp(2);
     // Gives us a value between 30 and  80 (good audible frequencies)
-    synth.freq(midiToFreq(((60 * mouseY)/500) + 30)); 
+    if(mouseX <= 800 && mouseY <= 800) {
+      synth.amp(2);
+      synth.freq(midiToFreq(((60 *(800 - mouseY))/500) + 30));
+    }
 
     // Start black stroke
     stroke(0);
@@ -129,5 +134,14 @@ function draw() {
     // Save previous mouse position for next line() call
     prevX = mouseX;
     prevY = mouseY;
+  }
+}
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
   }
 }
