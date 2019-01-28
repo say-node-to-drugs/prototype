@@ -2,8 +2,9 @@ let recorder, soundFile, canvas;
 let prevX, prevY;
 let recordArray = [];
 let state = 0; // mousePress will increment from Record, to Stop, to Play
-let synth;
 let replay = false;
+let synth, synth2;
+let color = 'black';
 
 function setup() {
   canvas = createCanvas(800, 800);
@@ -19,6 +20,9 @@ function setup() {
   producedAudio.setSource(0);
 
   synth = new p5.SinOsc();
+  synth2 = new p5.Oscillator();
+  synth2.setType('sine');
+
   recorder.setInput(synth);
 
   // create an empty sound file that we will use to playback the recording
@@ -49,39 +53,58 @@ function setup() {
     replay = true;
   }
 
-  let play = document.createElement('button');
-  play.innerText = 'Play';
+  let redPaint = document.createElement('button')
+  redPaint.innerText = 'Red';
+  redPaint.onclick = () => {
+    color = 'red'
+  }
+  document.body.appendChild(redPaint)
+
+  let play = document.createElement('button')
+  play.innerText = 'Play'
+
   play.onclick = () => {
     function getSum(total, num) {
       return total + num;
     }
 
-    let coloredPixels = [];
-    for (let i = 0; i < 16; i++) {
+
+    let blackPixels = [];
+    let redPixels = [];
+    synth.start();
+    synth2.start();
+    for(let i = 0; i < 16; i++) {
+
       let pixels = canvas.drawingContext.getImageData(i * 50, 0, 50, 800);
 
       let j = 0;
-      while (j < pixels.data.length) {
-        if (pixels.data[j] < 255) {
-          coloredPixels.push(j / 800);
+      while(j < pixels.data.length) {
+        if(pixels.data[j] === 255 && pixels.data[j + 1] === 255) {
+          blackPixels.push(j / 200)
+        } else if(pixels.data[j] === 255) {
+          redPixels.push(j / 200)
         }
         j += 4;
       }
-      // console.log('coloredPixels array is');
-      // console.log(coloredPixels);
-      if (coloredPixels.length) {
-        let average = coloredPixels.reduce(getSum) / coloredPixels.length;
-        console.log('average is ');
-        console.log(average);
-        synth.start();
-        synth.fade(0.5, 0.2);
+
+      if(blackPixels.length && redPixels.length) {
+        let averageBlack = blackPixels.reduce(getSum)/blackPixels.length;
+        let averageRed = redPixels.reduce(getSum)/redPixels.length;
+        console.log('about to emit frequency ' + (((60 * averageBlack)/500) + 40));
+        sleep(200);
+        synth.freq(midiToFreq(((60 * (800 - averageBlack))/500) + 20));
         synth.amp(2);
-        synth.freq(midiToFreq((60 * average) / 500 + 30));
-        setTimeout(10000);
+        synth2.freq(midiToFreq(((60 * (800 - averageRed))/500) + 20));
+        synth2.amp(2);
       }
+      blackPixels = [];
+      redPixels = [];
     }
   };
-  document.body.appendChild(play);
+    synth.stop();
+    synth2.stop();
+  }
+  document.body.appendChild(play)
 
   // Button to download the currently recorded audio
   let download = document.createElement('button');
@@ -96,10 +119,11 @@ function setup() {
 }
 
 function mousePressed() {
-  if (state === 0 && !replay) {
+  if(state === 0 && mouseX <= 800 && mouseY <= 800 && !replay) {
+    
     // Begin playing the synth
     synth.start();
-    synth.fade(0.5, 0.2);
+    synth2.start();
     state++;
 
     // Reset the previous mouse position
@@ -124,6 +148,14 @@ function sleep(milliseconds) {
       break;
     }
   }
+  
+    // Stop playing synth
+    synth.fade(0,0.5);
+    synth2.fade(0,0.5);
+    synth.stop();
+    synth2.stop();
+    state = 0;
+
 }
 
 function draw() {
@@ -135,13 +167,20 @@ function draw() {
 
   if (state) {
     // Turn up volume of synthillator tone
-    synth.amp(2);
     // Gives us a value between 30 and  80 (good audible frequencies)
-    synth.freq(midiToFreq((60 * (1200 - mouseY)) / 500 + 30));
-
-    // Start black stroke
-    stroke(0);
-    line(prevX, prevY, mouseX, mouseY);
+    if(mouseX <= 800 && mouseY <= 800) {
+      // Start black stroke
+      if(color === 'black') {
+        synth.amp(2);
+        synth.freq(midiToFreq(((60 *(800 - mouseY))/500) + 30));
+        stroke(0);
+      } else if(color === 'red') {
+        synth2.amp(2);
+        synth2.freq(midiToFreq(((60 *(800 - mouseY))/500) + 30));
+        stroke(255, 0, 0)
+      }
+      line(prevX, prevY, mouseX, mouseY);
+    }
 
     // Save all previous datapoints of mouse into a positional array //
     recordArray.push((prevX = mouseX));
@@ -194,4 +233,13 @@ THIS IS THE RECORDING SNIPPET OF CODE -- ABOVE --
 */
 
   return recordArray;
+}
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
 }
