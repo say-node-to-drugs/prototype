@@ -5,6 +5,9 @@ let synth, synth2;
 let replay = false;
 let color = 'black';
 let recordArray = [];
+let playbackArray = [];
+let recordArrayRed = [];
+let recordArrayBlack = [];
 
 function setup() {
   canvas = createCanvas(800, 800);
@@ -161,16 +164,22 @@ function draw() {
         synth.amp(2);
         synth.freq(midiToFreq((60 * (800 - mouseY)) / 500 + 30));
         stroke(0);
+        recordArrayBlack.push(mouseX);
+        recordArrayBlack.push(mouseY);
       } else if (color === 'red') {
         synth2.amp(2);
         synth2.freq(midiToFreq((60 * (800 - mouseY)) / 500 + 30));
         stroke(255, 0, 0);
+        recordArrayRed.push(mouseX);
+        recordArrayRed.push(mouseY);
       }
       line(prevX, prevY, mouseX, mouseY);
     }
     // Save previous mouse position for next line() call
-    recordArray.push((prevX = mouseX));
-    recordArray.push((prevY = mouseY));
+    prevX = mouseX;
+    prevY = mouseY;
+    console.log('Current array black: ', recordArrayBlack);
+    console.log('Current array red: ', recordArrayRed);
   }
 
   /*
@@ -183,21 +192,27 @@ This needs a bitton... toggle the value of < replay > with a button. If replay =
   if (replay) {
     console.log('Replaying');
     synth.start();
-    for (let i = 0; i < recordArray.length - 4; i = i + 2) {
+    if (color === 'red') {
+      playbackArray = recordArrayRed;
+    }
+    if (color === 'black') {
+      playbackArray = recordArrayBlack;
+    }
+    for (let i = 0; i < playbackArray.length - 4; i = i + 2) {
       synth.amp(2);
       // Gives us a value between 30 and  80 (good audible frequencies)
-      synth.freq(midiToFreq((60 * (800 - recordArray[i + 1])) / 500 + 30));
+      synth.freq(midiToFreq((60 * (800 - playbackArray[i + 1])) / 500 + 30));
       // Start black stroke
       stroke(0);
+      console.log(color);
       line(
-        recordArray[i],
-        recordArray[i + 1],
-        recordArray[i + 2],
-        recordArray[i + 3]
+        playbackArray[i],
+        playbackArray[i + 1],
+        playbackArray[i + 2],
+        playbackArray[i + 3]
       );
 
-      // synth.fade(0.5, 0.2);
-      sleep(15);
+      sleep(17);
     }
 
     mouseReleased();
