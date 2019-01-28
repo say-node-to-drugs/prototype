@@ -56,6 +56,8 @@ function setup() {
     let redPixels = [];
     synth.start();
     synth2.start();
+    synth.amp(0);
+    synth2.amp(0);
     for(let i = 0; i < 200; i++) {
       let pixels = canvas.drawingContext.getImageData(i * 4, 0, 50, 800);
       let j = 0;
@@ -104,8 +106,11 @@ function setup() {
 function mousePressed() {
   if(state === 0 && mouseX <= 800 && mouseY <= 800) {
     // Begin playing the synth
-    synth.start();
-    synth2.start();
+    if(color === 'black') {
+      synth.start();
+    } else if(color === 'red') {
+      synth2.start();
+    }
     state++;
     // Reset the previous mouse position
     prevX = 0;
@@ -116,10 +121,14 @@ function mousePressed() {
 }
 function mouseReleased() {
     // Stop playing synth
-    synth.fade(0,0.5);
-    synth2.fade(0,0.5);
-    synth.stop();
-    synth2.stop();
+    if(color === 'black') {
+      synth.fade(0,0.5);
+      synth.stop();
+    } else if(color === 'red') {
+      synth2.fade(0,0.5);
+      synth2.stop();
+    }
+
     state = 0;
 }
 function draw() {
