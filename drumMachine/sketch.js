@@ -46,10 +46,7 @@ function setup() {
   button.mousePressed(replayArray);
 
   function replayArray() {
-    console.log('Replaying');
-    console.log('RECORD ARRAY: ', recordArray);
     replay = true;
-    console.log('REPLAY');
   }
 
   let play = document.createElement('button');
