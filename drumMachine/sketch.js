@@ -4,6 +4,8 @@ let state = 0; // mousePress will increment from Record, to Stop, to Play
 let synth, synth2;
 let replay = false;
 let color = 'black';
+
+const notes = [ 60, 62, 64, 65, 67, 69, 71];
 let recordArray = [];
 let playbackArray = [];
 let recordArrayRed = [];
@@ -13,8 +15,8 @@ function setup() {
   canvas = createCanvas(800, 800);
   background(255);
   fill(0);
-  strokeWeight(100);
-
+  strokeWeight(50);
+  
   // create a sound recorder
   recorder = new p5.SoundRecorder();
   let producedAudio = new p5.AudioIn();
@@ -22,7 +24,7 @@ function setup() {
 
   synth = new p5.SinOsc();
   synth2 = new p5.Oscillator();
-  synth2.setType('sine');
+  synth2.setType('sawtooth');
   recorder.setInput(synth);
   // create an empty sound file that we will use to playback the recording
   soundFile = new p5.SoundFile();
@@ -75,25 +77,26 @@ function setup() {
         }
         j += 4;
       }
-      if (blackPixels.length) {
-        let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
-        console.log(
-          'about to emit black frequency ' + ((60 * averageBlack) / 500 + 40)
-        );
+      if(blackPixels.length) {
+        let averageBlack = blackPixels.reduce(getSum)/blackPixels.length;
+
+        let frequency = (((60 * averageBlack)/500) + 20);
+        let index = Math.floor((7 * frequency) / 125);
         sleep(20);
-        synth.freq(midiToFreq((60 * (800 - averageBlack)) / 500 + 20));
+        synth.freq(midiToFreq(notes[index]));
         synth.amp(2);
-        // synth.stop();
       }
-      if (redPixels.length) {
-        let averageRed = redPixels.reduce(getSum) / redPixels.length;
-        console.log(
-          'about to emit red frequency ' + ((60 * averageRed) / 500 + 40)
-        );
+      if(redPixels.length){
+        let averageRed = redPixels.reduce(getSum)/redPixels.length;
+
+        let frequency = (((60 * averageRed)/500) + 20);
+        let index = Math.floor((7 * frequency) / 125);
+
+        console.log('about to emit red frequency ' + frequency);
+        console.log('index is ' + index)
         sleep(20);
-        synth2.freq(midiToFreq((60 * (800 - averageRed)) / 500 + 20));
-        synth2.amp(2);
-        // synth2.stop();
+        synth2.freq(midiToFreq(notes[index]));
+        synth2.amp(2)
       }
       blackPixels = [];
       redPixels = [];
