@@ -182,10 +182,8 @@ This needs a bitton... toggle the value of < replay > with a button. If replay =
 
   if (replay) {
     console.log('Replaying');
-    console.log('RECORD ARRAY: ', recordArray);
     synth.start();
     for (let i = 0; i < recordArray.length - 4; i = i + 2) {
-      console.log('X: ', recordArray[i], 'Y: ', recordArray[i + 1]);
       synth.amp(2);
       // Gives us a value between 30 and  80 (good audible frequencies)
       synth.freq(midiToFreq((60 * (800 - recordArray[i + 1])) / 500 + 30));
