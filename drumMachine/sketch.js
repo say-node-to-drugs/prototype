@@ -5,7 +5,7 @@ let synth, synth2;
 let replay = false;
 let color = 'black';
 
-const notes = [ 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
+const notes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
 let recordArray = [];
 let playbackArray = [];
 let recordArrayRed = [];
@@ -80,8 +80,8 @@ function setup() {
       if(blackPixels.length) {
         let averageBlack = blackPixels.reduce(getSum)/blackPixels.length;
 
-        let frequency = (((60 * averageBlack)/500) + 20);
-        let index = Math.floor(14 - (14 * frequency) / 125);
+        let frequency = (((60 * averageBlack)/500));
+        let index = Math.floor(14 - (21 * frequency) / 125);
 
         sleep(20);
         synth.freq(midiToFreq(notes[index]));
@@ -90,8 +90,8 @@ function setup() {
       if(redPixels.length){
         let averageRed = redPixels.reduce(getSum)/redPixels.length;
 
-        let frequency = (((60 * averageRed)/500) + 20);
-        let index = Math.floor(14 - (14 * frequency) / 125);
+        let frequency = (((60 * averageRed)/500));
+        let index = Math.floor(14 - (21 * frequency) / 125);
 
         console.log('about to emit red frequency ' + frequency);
         console.log('index is ' + index)
@@ -166,13 +166,13 @@ function draw() {
       // Start black stroke
       if (color === 'black') {
         synth.amp(2);
-        synth.freq(midiToFreq((((60 * (800 - mouseY))/500) + 20)));
+        synth.freq(midiToFreq((((60 * (800 - mouseY))/500))));
         stroke(0);
         recordArrayBlack.push(mouseX);
         recordArrayBlack.push(mouseY);
       } else if (color === 'red') {
         synth2.amp(2);
-        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500) + 20)));
+        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500))));
         stroke(255, 0, 0);
         recordArrayRed.push(mouseX);
         recordArrayRed.push(mouseY);
