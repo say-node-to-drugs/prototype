@@ -5,7 +5,29 @@ let synth, synth2;
 let replay = false;
 let color = 'black';
 
-const notes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
+const notes = [
+  48,
+  50,
+  52,
+  53,
+  55,
+  57,
+  59,
+  60,
+  62,
+  64,
+  65,
+  67,
+  69,
+  71,
+  72,
+  74,
+  76,
+  77,
+  79,
+  81,
+  83
+];
 let recordArray = [];
 let playbackArray = [];
 let recordArrayRed = [];
@@ -80,7 +102,7 @@ function setup() {
       if (blackPixels.length) {
         let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
 
-        let frequency = (((60 * averageBlack)/500));
+        let frequency = (60 * averageBlack) / 500;
         let index = Math.floor(14 - (21 * frequency) / 125);
 
         sleep(20);
@@ -90,7 +112,7 @@ function setup() {
       if (redPixels.length) {
         let averageRed = redPixels.reduce(getSum) / redPixels.length;
 
-        let frequency = (((60 * averageRed)/500));
+        let frequency = (60 * averageRed) / 500;
         let index = Math.floor(14 - (21 * frequency) / 125);
 
         console.log('about to emit red frequency ' + frequency);
@@ -166,14 +188,14 @@ function draw() {
       // Start black stroke
       if (color === 'black') {
         synth.amp(2);
-        synth.freq(midiToFreq((((60 * (800 - mouseY))/500))));
+        synth.freq(midiToFreq((60 * (800 - mouseY)) / 500));
         stroke(0);
         recordArrayBlack.push(mouseX);
         recordArrayBlack.push(mouseY);
         LZcompressed(recordArrayBlack);
       } else if (color === 'red') {
         synth2.amp(2);
-        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500))));
+        synth2.freq(midiToFreq((60 * (800 - mouseY)) / 500));
         stroke(255, 0, 0);
         recordArrayRed.push(mouseX);
         recordArrayRed.push(mouseY);
@@ -194,32 +216,54 @@ This needs a bitton... toggle the value of < replay > with a button. If replay =
 */
 
   if (replay) {
-    console.log('Replaying');
+    console.log('Replaying', color);
     synth.start();
+
     if (color === 'red') {
       playbackArray = recordArrayRed;
+      synth.amp(2);
+      for (let i = 0; i < playbackArray.length - 4; i = i + 2) {
+        // Gives us a value between 30 and  80 (good audible frequencies)
+        synth.freq(midiToFreq((60 * (800 - playbackArray[i + 1])) / 500));
+        // Start black stroke
+        stroke(0);
+        console.log(color);
+        line(
+          playbackArray[i],
+          playbackArray[i + 1],
+          playbackArray[i + 2],
+          playbackArray[i + 3]
+        );
+        sleep(17);
+      }
+      synth.fade(0, 0.5);
+      synth.stop();
+      synth2.fade(0, 0.5);
+      synth2.stop();
     }
+
     if (color === 'black') {
       playbackArray = recordArrayBlack;
-    }
-    for (let i = 0; i < playbackArray.length - 4; i = i + 2) {
       synth.amp(2);
-      // Gives us a value between 30 and  80 (good audible frequencies)
-      synth.freq(midiToFreq((60 * (800 - playbackArray[i + 1])) / 500 + 30));
-      // Start black stroke
-      stroke(0);
-      console.log(color);
-      line(
-        playbackArray[i],
-        playbackArray[i + 1],
-        playbackArray[i + 2],
-        playbackArray[i + 3]
-      );
+      for (let i = 0; i < playbackArray.length - 4; i = i + 2) {
+        console.log(playbackArray[i], playbackArray[i + 1]);
 
-      sleep(17);
+        // Gives us a value between 30 and  80 (good audible frequencies)
+        synth.freq(midiToFreq((60 * (800 - playbackArray[i + 1])) / 500));
+        // Start black stroke
+        stroke(0);
+        console.log(color);
+        line(
+          playbackArray[i],
+          playbackArray[i + 1],
+          playbackArray[i + 2],
+          playbackArray[i + 3]
+        );
+        sleep(17);
+      }
+      mouseReleased();
     }
 
-    mouseReleased();
     state = 0;
     console.log('DONE');
     replay = false;
