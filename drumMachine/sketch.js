@@ -16,7 +16,7 @@ function setup() {
   background(255);
   fill(0);
   strokeWeight(50);
-  
+
   // create a sound recorder
   recorder = new p5.SoundRecorder();
   let producedAudio = new p5.AudioIn();
@@ -77,8 +77,8 @@ function setup() {
         }
         j += 4;
       }
-      if(blackPixels.length) {
-        let averageBlack = blackPixels.reduce(getSum)/blackPixels.length;
+      if (blackPixels.length) {
+        let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
 
         let frequency = (((60 * averageBlack)/500));
         let index = Math.floor(14 - (21 * frequency) / 125);
@@ -87,17 +87,17 @@ function setup() {
         synth.freq(midiToFreq(notes[index]));
         synth.amp(2);
       }
-      if(redPixels.length){
-        let averageRed = redPixels.reduce(getSum)/redPixels.length;
+      if (redPixels.length) {
+        let averageRed = redPixels.reduce(getSum) / redPixels.length;
 
         let frequency = (((60 * averageRed)/500));
         let index = Math.floor(14 - (21 * frequency) / 125);
 
         console.log('about to emit red frequency ' + frequency);
-        console.log('index is ' + index)
+        console.log('index is ' + index);
         sleep(20);
         synth2.freq(midiToFreq(notes[index]));
-        synth2.amp(2)
+        synth2.amp(2);
       }
       blackPixels = [];
       redPixels = [];
@@ -170,20 +170,20 @@ function draw() {
         stroke(0);
         recordArrayBlack.push(mouseX);
         recordArrayBlack.push(mouseY);
+        LZcompressed(recordArrayBlack);
       } else if (color === 'red') {
         synth2.amp(2);
         synth2.freq(midiToFreq((((60 * (800 - mouseY))/500))));
         stroke(255, 0, 0);
         recordArrayRed.push(mouseX);
         recordArrayRed.push(mouseY);
+        LZcompressed(recordArrayRed);
       }
       line(prevX, prevY, mouseX, mouseY);
     }
     // Save previous mouse position for next line() call
     prevX = mouseX;
     prevY = mouseY;
-    console.log('Current array black: ', recordArrayBlack);
-    console.log('Current array red: ', recordArrayRed);
   }
 
   /*
@@ -238,4 +238,21 @@ function sleep(milliseconds) {
       break;
     }
   }
+}
+
+//_______________________________________________________
+
+function LZcompressed(array) {
+  var string = String.fromCharCode.apply(null, array);
+  var compressed = LZString.compress(string);
+  var decompressed = LZString.decompress(compressed);
+  var dearray = [];
+  for (var i = 0; i < decompressed.length; i++) {
+    dearray[i] = decompressed.charCodeAt(i);
+  }
+  console.log('LZ - ORIG. ARRAY: ', array.length, array);
+  console.log('LZ - ARRAY TO STRING: ', string.length, string);
+  console.log('LZ - COMPRESSED: ', compressed.length, compressed);
+  console.log('LZ - DECOMPRESSED: ', decompressed.length, decompressed);
+  console.log('LZ - DECOMP. ARRAY: ', dearray.length, dearray);
 }
