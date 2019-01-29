@@ -5,7 +5,7 @@ let synth, synth2;
 let replay = false;
 let color = 'black';
 
-const notes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
+const notes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71];
 let recordArray = [];
 let playbackArray = [];
 let recordArrayRed = [];
@@ -22,12 +22,17 @@ function setup() {
   let producedAudio = new p5.AudioIn();
   producedAudio.setSource(0);
 
+  // Create instruments
   synth = new p5.SinOsc();
   synth2 = new p5.Oscillator();
   synth2.setType('sawtooth');
+
+  // Set input of recorder to instruments
   recorder.setInput(synth);
   // create an empty sound file that we will use to playback the recording
   soundFile = new p5.SoundFile();
+
+
   // Button to begin recording audio
   let startRecording = document.createElement('button');
   startRecording.innerText = 'Start Recording';
@@ -42,33 +47,39 @@ function setup() {
     recorder.stop();
   };
   document.body.appendChild(stopRecording);
+  // Button to change paint to red
   let redPaint = document.createElement('button');
   redPaint.innerText = 'Red';
   redPaint.onclick = () => {
     color = 'red';
   };
   document.body.appendChild(redPaint);
+  // Button to change paint to black
   let blackPaint = document.createElement('button');
   blackPaint.innerText = 'Black';
   blackPaint.onclick = () => {
     color = 'black';
   };
   document.body.appendChild(blackPaint);
+  // Button to handle canvas playback
   let play = document.createElement('button');
   play.innerText = 'Play';
+  let blackPixels = [];
+  let redPixels = [];
+  let pixels;
   play.onclick = () => {
-    function getSum(total, num) {
-      return total + num;
-    }
-    let blackPixels = [];
-    let redPixels = [];
+    // Initialize the instruments
     synth.start();
     synth2.start();
     synth.amp(0);
     synth2.amp(0);
+
+    // Loop through each slice of the canvas
     for (let i = 0; i < 200; i++) {
-      let pixels = canvas.drawingContext.getImageData(i * 4, 0, 50, 800);
+      // Gets the pixel data for current slice
+      pixels = canvas.drawingContext.getImageData(i * 4, 0, 50, 800);
       let j = 0;
+      // Loop throught all pixel data and add all colored pixels y-values to appropriate arrays
       while (j < pixels.data.length) {
         if (pixels.data[j] === 0 && pixels.data[j + 1] === 0) {
           blackPixels.push(j / 200);
@@ -77,21 +88,23 @@ function setup() {
         }
         j += 4;
       }
+      // Finds the average y-value for black pixels and plays the note closest to that frequency
       if (blackPixels.length) {
         let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
 
-        let frequency = (((60 * averageBlack)/500));
-        let index = Math.floor(14 - (21 * frequency) / 125);
+        let frequency = (((60 * averageBlack)/500) + 30);
+        let index = Math.floor(14 - (14 * frequency) / 125);
 
         sleep(20);
         synth.freq(midiToFreq(notes[index]));
         synth.amp(2);
       }
+      // Finds the average y-value for red pixels and plays the note closest to that frequency
       if (redPixels.length) {
         let averageRed = redPixels.reduce(getSum) / redPixels.length;
 
-        let frequency = (((60 * averageRed)/500));
-        let index = Math.floor(14 - (21 * frequency) / 125);
+        let frequency = (((60 * averageRed)/500) + 30);
+        let index = Math.floor(14 - (14 * frequency) / 125);
 
         console.log('about to emit red frequency ' + frequency);
         console.log('index is ' + index);
@@ -99,6 +112,7 @@ function setup() {
         synth2.freq(midiToFreq(notes[index]));
         synth2.amp(2);
       }
+      // Reset the colored pixels arrays
       blackPixels = [];
       redPixels = [];
     }
@@ -107,6 +121,7 @@ function setup() {
   };
   document.body.appendChild(play);
   // Button to download the currently recorded audio
+
   let download = document.createElement('button');
   download.innerText = 'Download';
   download.onclick = () => {
@@ -116,6 +131,7 @@ function setup() {
     // Retrieve all pixels from the canvas
   };
   document.body.appendChild(download);
+
   let playback = document.createElement('button');
   playback.innerText = 'Playback';
   playback.onclick = () => {
@@ -125,13 +141,15 @@ function setup() {
 }
 
 function mousePressed() {
+  // If nothing is being played and the mouse is clicked on the canvas
   if (state === 0 && mouseX <= 800 && mouseY <= 800) {
-    // Begin playing the synth
+    // Begin playing the correct synth
     if (color === 'black') {
       synth.start();
     } else if (color === 'red') {
       synth2.start();
     }
+    // Set state to 1 so the draw() function knows to make lines and produce audio
     state++;
     // Reset the previous mouse position
     prevX = 0;
@@ -163,17 +181,17 @@ function draw() {
     // Turn up volume of synthillator tone
     // Gives us a value between 30 and  80 (good audible frequencies)
     if (mouseX <= 800 && mouseY <= 800) {
-      // Start black stroke
+      // Start stroke and play audio based on color
       if (color === 'black') {
         synth.amp(2);
-        synth.freq(midiToFreq((((60 * (800 - mouseY))/500))));
+        synth.freq(midiToFreq((((60 * (800 - mouseY))/500)) + 20));
         stroke(0);
         recordArrayBlack.push(mouseX);
         recordArrayBlack.push(mouseY);
         LZcompressed(recordArrayBlack);
       } else if (color === 'red') {
         synth2.amp(2);
-        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500))));
+        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500)) + 20));
         stroke(255, 0, 0);
         recordArrayRed.push(mouseX);
         recordArrayRed.push(mouseY);
@@ -231,6 +249,8 @@ THIS IS THE RECORDING SNIPPET OF CODE -- ABOVE --
 ----------------------------------------------------------
 */
 }
+
+// Utility functions
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -240,6 +260,9 @@ function sleep(milliseconds) {
   }
 }
 
+function getSum(total, num) {
+  return total + num;
+}
 //_______________________________________________________
 
 function LZcompressed(array) {
