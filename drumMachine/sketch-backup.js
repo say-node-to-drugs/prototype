@@ -5,33 +5,7 @@ let synth, synth2;
 let replay = false;
 let color = 'black';
 
-<<<<<<< HEAD:drumMachine/sketch-backup.js
-const notes = [
-  48,
-  50,
-  52,
-  53,
-  55,
-  57,
-  59,
-  60,
-  62,
-  64,
-  65,
-  67,
-  69,
-  71,
-  72,
-  74,
-  76,
-  77,
-  79,
-  81,
-  83
-];
-=======
 const notes = [48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71];
->>>>>>> fc185cac3f194e03b2e0e040a693cad98d2876b0:drumMachine/sketch.js
 let recordArray = [];
 let playbackArray = [];
 let recordArrayRed = [];
@@ -57,7 +31,6 @@ function setup() {
   recorder.setInput(synth);
   // create an empty sound file that we will use to playback the recording
   soundFile = new p5.SoundFile();
-
 
   // Button to begin recording audio
   let startRecording = document.createElement('button');
@@ -118,13 +91,8 @@ function setup() {
       if (blackPixels.length) {
         let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
 
-<<<<<<< HEAD:drumMachine/sketch-backup.js
-        let frequency = (60 * averageBlack) / 500;
-        let index = Math.floor(14 - (21 * frequency) / 125);
-=======
-        let frequency = (((60 * averageBlack)/500) + 30);
+        let frequency = (60 * averageBlack) / 500 + 30;
         let index = Math.floor(14 - (14 * frequency) / 125);
->>>>>>> fc185cac3f194e03b2e0e040a693cad98d2876b0:drumMachine/sketch.js
 
         sleep(20);
         synth.freq(midiToFreq(notes[index]));
@@ -134,13 +102,8 @@ function setup() {
       if (redPixels.length) {
         let averageRed = redPixels.reduce(getSum) / redPixels.length;
 
-<<<<<<< HEAD:drumMachine/sketch-backup.js
-        let frequency = (60 * averageRed) / 500;
-        let index = Math.floor(14 - (21 * frequency) / 125);
-=======
-        let frequency = (((60 * averageRed)/500) + 30);
+        let frequency = (60 * averageRed) / 500 + 30;
         let index = Math.floor(14 - (14 * frequency) / 125);
->>>>>>> fc185cac3f194e03b2e0e040a693cad98d2876b0:drumMachine/sketch.js
 
         console.log('about to emit red frequency ' + frequency);
         console.log('index is ' + index);
@@ -220,22 +183,14 @@ function draw() {
       // Start stroke and play audio based on color
       if (color === 'black') {
         synth.amp(2);
-<<<<<<< HEAD:drumMachine/sketch-backup.js
-        synth.freq(midiToFreq((60 * (800 - mouseY)) / 500));
-=======
-        synth.freq(midiToFreq((((60 * (800 - mouseY))/500)) + 20));
->>>>>>> fc185cac3f194e03b2e0e040a693cad98d2876b0:drumMachine/sketch.js
+        synth.freq(midiToFreq((60 * (800 - mouseY)) / 500 + 20));
         stroke(0);
         recordArrayBlack.push(mouseX);
         recordArrayBlack.push(mouseY);
         LZcompressed(recordArrayBlack);
       } else if (color === 'red') {
         synth2.amp(2);
-<<<<<<< HEAD:drumMachine/sketch-backup.js
-        synth2.freq(midiToFreq((60 * (800 - mouseY)) / 500));
-=======
-        synth2.freq(midiToFreq((((60 * (800 - mouseY))/500)) + 20));
->>>>>>> fc185cac3f194e03b2e0e040a693cad98d2876b0:drumMachine/sketch.js
+        synth2.freq(midiToFreq((60 * (800 - mouseY)) / 500 + 20));
         stroke(255, 0, 0);
         recordArrayRed.push(mouseX);
         recordArrayRed.push(mouseY);
