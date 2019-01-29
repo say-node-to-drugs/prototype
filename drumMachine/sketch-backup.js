@@ -261,7 +261,10 @@ This needs a bitton... toggle the value of < replay > with a button. If replay =
         );
         sleep(17);
       }
-      mouseReleased();
+      synth.fade(0, 0.5);
+      synth.stop();
+      synth2.fade(0, 0.5);
+      synth2.stop();
     }
 
     state = 0;
