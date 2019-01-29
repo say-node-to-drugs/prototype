@@ -101,7 +101,7 @@ function setup() {
         let index = Math.floor(14 - (21 * frequency) / 125);
         console.log('about to emit black frequency ' + frequency);
         console.log('index is ' + index);
-        sleep(10);
+        // sleep(1);
         synth.freq(midiToFreq(notes[index]));
         synth.amp(2);
       }
@@ -159,7 +159,7 @@ function setup() {
         let averageBlack = blackPixels.reduce(getSum) / blackPixels.length;
         let frequency = (60 * (800 - averageBlack)) / 500 + 30;
         console.log('about to emit black frequency ' + frequency);
-        sleep(10);
+        sleep(5);
         synth.freq(midiToFreq(frequency));
         synth.amp(2);
       }
@@ -167,7 +167,7 @@ function setup() {
         let averageRed = redPixels.reduce(getSum) / redPixels.length;
         let frequency = (60 * (800 - averageRed)) / 500;
         console.log('about to emit red frequency ' + frequency);
-        sleep(10);
+        sleep(5);
         synth2.freq(midiToFreq(frequency));
         synth2.amp(2);
       }
